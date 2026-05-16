@@ -4,3 +4,5 @@ dist/
 *.pkl
 __pycache__/
 .env
+healthcare.db
+*.pyc

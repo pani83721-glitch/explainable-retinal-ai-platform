@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlucoGuard AI | Professional Healthcare Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        :root {
+            --primary: #005dac;
+            --primary-container: #1976d2;
+            --background: #f7f9fb;
+            --surface: #ffffff;
+            --on-surface: #191c1e;
+            --surface-container: #eceef0;
+            --surface-variant: #e0e3e5;
+            --outline: #c1c6d4;
+            --error: #ba1a1a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--on-surface);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
+        }
+
+        .nav-link {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .table-row-hover:hover {
+            background-color: #f8fafc;
+            transform: scale(1.002);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Navigation -->
+    <nav id="mainNav" class="bg-white/90 backdrop-blur-xl border-b border-slate-100 sticky top-0 z-50 hidden">
+        <div class="max-w-7xl mx-auto px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center gap-4 cursor-pointer group" onclick="goToRoleSelection()">
+                    <div class="w-11 h-11 bg-gradient-to-tr from-[#005dac] to-[#1976d2] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200 group-hover:rotate-6 transition-all duration-300">
+                        <span class="material-symbols-outlined text-2xl font-bold">health_metrics</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-black text-xl tracking-tight text-[#191c1e] leading-none">GlucoGuard<span class="text-[#005dac]">AI</span></span>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Surgical Intelligence</span>
+                    </div>
+                </div>
+
+                <!-- Admin Nav -->
+                <div id="adminNav" class="hidden items-center gap-2">
+                    <button onclick="showSection('predict')" class="nav-link px-6 py-8 text-sm font-bold text-slate-500 hover:text-[#005dac] transition-all">Risk Engine</button>
+                    <button onclick="showSection('alerts')" class="nav-link px-6 py-8 text-sm font-bold text-slate-500 hover:text-[#005dac] transition-all flex items-center gap-2">
+                        Alerts
+                        <span id="navAlertBadge" class="hidden w-5 h-5 bg-rose-500 text-white text-[10px] rounded-full flex items-center justify-center animate-pulse">0</span>
+                    </button>
+                    <button onclick="showSection('dashboard')" class="nav-link px-6 py-8 text-sm font-bold text-slate-500 hover:text-[#005dac] transition-all">Registry</button>
+                    <div class="h-8 w-px bg-slate-100 mx-4"></div>
+                    <button onclick="logout()" class="flex items-center gap-2 px-4 py-2 rounded-xl border border-rose-100 text-rose-500 hover:bg-rose-50 font-bold text-xs transition-all">
+                        <span class="material-symbols-outlined text-lg">logout</span>
+                        Exit Portal
+                    </button>
+                </div>
+
+                <!-- Patient Nav -->
+                <div id="patientNav" class="hidden items-center gap-2">
+                    <button onclick="showSection('monitoring')" class="nav-link px-6 py-8 text-sm font-bold text-slate-500 hover:text-[#005dac] transition-all">Check-in</button>
+                    <button onclick="showSection('history')" class="nav-link px-6 py-8 text-sm font-bold text-slate-500 hover:text-[#005dac] transition-all">My Recovery</button>
+                    <div class="h-8 w-px bg-slate-100 mx-4"></div>
+                    <button onclick="logout()" class="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-slate-400 hover:bg-slate-50 font-bold text-xs transition-all">
+                        <span class="material-symbols-outlined text-lg">logout</span>
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-8 py-10">
+
+        <!-- SECTION: LOGIN / ROLE SELECTION -->
+        <section id="role-section" class="section-content flex flex-col items-center justify-center min-h-[75vh]">
+            <div class="w-full max-w-md bg-white p-12 rounded-[2.5rem] shadow-2xl border border-[#eceef0]">
+                <div class="text-center mb-10">
+                    <div class="w-16 h-16 bg-[#005dac] rounded-2xl flex items-center justify-center text-white shadow-lg mx-auto mb-6">
+                        <span class="material-symbols-outlined text-3xl">health_metrics</span>
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-[#191c1e] tracking-tight">Clinical Gateway</h2>
+                    <p class="text-slate-500 font-medium mt-2">Professional Patient Safety Portal</p>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Portal Access</label>
+                        <select id="loginRole" onchange="togglePasswordField()" class="w-full px-6 py-4 rounded-2xl border-2 border-[#f2f4f6] bg-[#f7f9fb] focus:bg-white focus:border-[#005dac] outline-none font-semibold transition-all">
+                            <option value="admin">Clinical Administrator</option>
+                            <option value="patient">Patient Dashboard</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Security Identifier</label>
+                        <div class="relative">
+                            <input type="text" id="loginIdentifier" placeholder="Patient ID or Username" class="w-full px-6 py-4 rounded-2xl border-2 border-[#f2f4f6] bg-[#f7f9fb] focus:bg-white focus:border-[#005dac] outline-none font-semibold transition-all pr-12">
+                            <button onclick="showIdHelper()" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-[#005dac] transition-colors">
+                                <span class="material-symbols-outlined text-xl">help</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="passwordField" class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Password</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full px-6 py-4 rounded-2xl border-2 border-[#f2f4f6] bg-[#f7f9fb] focus:bg-white focus:border-[#005dac] outline-none font-semibold transition-all">
+                    </div>
+
+                    <button onclick="handleLogin()" class="w-full bg-[#005dac] text-white py-5 rounded-2xl font-extrabold text-lg hover:bg-[#004786] shadow-xl shadow-blue-100 transition-all flex items-center justify-center gap-3">
+                        Secure Access
+                        <span class="material-symbols-outlined">login</span>
+                    </button>
+                </div>
+
+                <div id="idHelper" class="hidden mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Available IDs (Demo)</span>
+                        <button onclick="showIdHelper()" class="text-slate-400 hover:text-slate-600"><span class="material-symbols-outlined text-xs">close</span></button>
+                    </div>
+                    <div id="idList" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <div class="mt-10 pt-8 border-t border-[#f2f4f6] text-center">
+                    <p class="text-xs text-slate-400 font-medium italic">Powered by GlucoGuard AI Predictive Core</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: PREDICTION FORM (ADMIN) -->
+        <section id="predict-section" class="section-content hidden">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="w-2 h-2 rounded-full bg-[#005dac]"></span>
+                        <span class="text-[11px] font-bold uppercase tracking-widest text-slate-400 italic">Discharge Analysis</span>
+                    </div>
+                    <h1 class="text-4xl font-extrabold text-[#191c1e] tracking-tight">Risk Stratification Engine</h1>
+                    <p class="text-slate-500 font-medium text-lg mt-2">Predictive clinical assessment for 30-day readmission.</p>
+                </div>
+                <button onclick="fillSampleData()" class="px-6 py-3 bg-white border border-[#c1c6d4] hover:border-[#005dac] hover:text-[#005dac] text-slate-700 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-sm">auto_fix_high</span>
+                    Populate Demo Case
+                </button>
+            </div>
+
+            <div class="grid lg:grid-cols-12 gap-10">
+                <div class="lg:col-span-8">
+                    <form id="predictionForm" class="space-y-8">
+                        <div class="card-custom p-10">
+                            <h3 class="text-lg font-bold text-[#191c1e] flex items-center gap-3 mb-8">
+                                <span class="w-8 h-8 rounded-lg bg-[#d4e3ff] text-[#005dac] flex items-center justify-center text-sm">1</span>
+                                Clinical Identity
+                            </h3>
+                            <div class="grid sm:grid-cols-2 gap-8">
+                                <div class="space-y-2">
+                                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Patient Full Name</label>
+                                    <input type="text" name="name" id="f_name" required class="w-full px-6 py-4 rounded-2xl border-2 border-[#f2f4f6] bg-[#f7f9fb] focus:bg-white focus:border-[#005dac] outline-none transition-all font-semibold">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Electronic Health ID</label>
+                                    <input type="text" name="patient_id" id="f_pid" required class="w-full px-6 py-4 rounded-2xl border-2 border-[#f2f4f6] bg-[#f7f9fb] focus:bg-white focus:border-[#005dac] outline-none transition-all font-mono font-bold text-[#005dac]">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Age Cohort</label>
+                                    <select name="age" id="f_age" class="w-full px-6 py-4 rounded-2xl border-2 border-[#f2f4f6] bg-[#f7f9fb] focus:bg-white focus:border-[#005dac] outline-none font-semibold">
+                                        <option>[50-60)</option><option>[60-70)</option><option>[70-80)</option><option>[80-90)</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Gender</label>
+                                    <select name="gender" id="f_gender" class="w-full px-6 py-4 rounded-2xl border-2 border-[#f2f4f6] bg-[#f7f9fb] focus:bg-white focus:border-[#005dac] outline-none font-semibold">
+                                        <option>Female</option><option>Male</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-custom p-10">
+                            <h3 class="text-lg font-bold text-[#191c1e] flex items-center gap-3 mb-8">
+                                <span class="w-8 h-8 rounded-lg bg-[#d0e7ea] text-[#4b6063] flex items-center justify-center text-sm">2</span>
+                                Hospitalization Markers
+                            </h3>
+                            <div class="grid sm:grid-cols-3 gap-8">
+                                <div class="space-y-2">
+                                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Stay Duration</label>
+                                    <div class="relative">
+                                        <input type="number" name="time_in_hospital" id="f_stay" value="3" class="w-full px-6 py-4 rounded-2xl border-2 border-[#f2f4f6] bg-[#f7f9fb] focus:bg-white focus:border-[#005dac] outline-none font-bold">
+                                        <span class="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-300">DAYS</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Inpatient History</label>
+                                    <input type="number" name="number_inpatient" id="f_inpatient" value="0" class="w-full px-6 py-4 rounded-2xl border-2 border-[#f2f4f6] bg-[#f7f9fb] focus:bg-white focus:border-[#005dac] outline-none font-bold">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Active Meds</label>
+                                    <input type="number" name="num_medications" id="f_meds" value="12" class="w-full px-6 py-4 rounded-2xl border-2 border-[#f2f4f6] bg-[#f7f9fb] focus:bg-white focus:border-[#005dac] outline-none font-bold">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="predictBtn" class="w-full bg-[#191c1e] text-white py-6 rounded-3xl font-extrabold text-xl hover:bg-black shadow-2xl transition-all flex justify-center items-center gap-4">
+                            Run AI Simulation
+                            <span class="material-symbols-outlined text-3xl">psychology</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="lg:col-span-4">
+                    <div id="resultPlaceholder" class="bg-[#f2f4f6] p-12 rounded-[2.5rem] text-center border-4 border-dashed border-[#e0e3e5] h-full flex flex-col justify-center items-center">
+                        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center text-[#d8dadc] mb-6 shadow-sm">
+                            <span class="material-symbols-outlined text-5xl">analytics</span>
+                        </div>
+                        <h4 class="text-slate-400 font-bold text-lg">Awaiting Input</h4>
+                        <p class="text-slate-300 font-medium text-sm mt-2">Submit markers to generate model.</p>
+                    </div>
+
+                    <div id="resultCard" class="hidden sticky top-32 card-custom overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-500">
+                        <div id="riskHeader" class="p-12 text-center text-white relative">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                            <h2 id="riskLevelDisplay" class="text-6xl font-extrabold tracking-tighter">---</h2>
+                            <p class="text-white/70 font-bold uppercase tracking-[0.3em] text-[10px] mt-4">Calculated Risk Level</p>
+                        </div>
+                        <div class="p-10 space-y-8">
+                            <div class="flex justify-between items-center bg-[#f7f9fb] p-6 rounded-3xl border border-[#eceef0]">
+                                <div>
+                                    <span class="text-[11px] text-slate-400 font-bold uppercase tracking-widest block mb-1">Probability Score</span>
+                                    <span id="riskScoreDisplay" class="font-extrabold text-[#191c1e] text-4xl italic">0%</span>
+                                </div>
+                                <div class="w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-[#005dac] shadow-sm border border-[#eceef0]">
+                                    <span class="material-symbols-outlined text-3xl">analytics</span>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest italic">Clinical Indicators</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                        <div class="text-[9px] font-bold text-slate-400 uppercase">Trend</div>
+                                        <div class="font-bold text-slate-700">Predictive</div>
+                                    </div>
+                                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                        <div class="text-[9px] font-bold text-slate-400 uppercase">Reliability</div>
+                                        <div class="font-bold text-slate-700">94.2%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: MONITORING (PATIENT) -->
+        <section id="monitoring-section" class="section-content hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-16">
+                    <h1 class="text-5xl font-extrabold text-[#191c1e] mb-4 tracking-tight leading-tight">Daily Wellness Check</h1>
+                    <p class="text-slate-500 text-xl font-medium max-w-lg mx-auto leading-relaxed">Let's stay on top of your recovery today.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-12 items-start">
+                    <form id="reportForm" class="card-custom p-12 space-y-10">
+                        <div class="space-y-8">
+                            <div class="space-y-3">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Confirm Identity</label>
+                                <input type="text" id="monitoring_pid" name="patient_id" required
+                                    class="w-full px-6 py-5 rounded-2xl border-2 border-[#f2f4f6] bg-[#f7f9fb] focus:bg-white focus:border-[#005dac] outline-none transition-all text-xl font-extrabold text-[#005dac] placeholder:text-[#d8dadc]"
+                                    placeholder="PAT-1234">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-8">
+                                <div class="space-y-3">
+                                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Glucose Level</label>
+                                    <input type="number" name="sugar_level" required
+                                        class="w-full px-6 py-5 rounded-2xl border-2 border-[#f2f4f6] bg-[#f7f9fb] focus:bg-white focus:border-[#ba1a1a] outline-none transition-all text-2xl font-extrabold text-[#191c1e]">
+                                </div>
+                                <div class="space-y-3">
+                                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Fatigue (1-10)</label>
+                                    <input type="number" name="fatigue_level" min="1" max="10" required
+                                        class="w-full px-6 py-5 rounded-2xl border-2 border-[#f2f4f6] bg-[#f7f9fb] focus:bg-white focus:border-amber-500 outline-none transition-all text-2xl font-extrabold text-[#191c1e]"
+                                        value="3">
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <label class="flex items-center gap-6 p-6 bg-[#f7f9fb] rounded-3xl cursor-pointer border-2 border-transparent hover:border-[#d4e3ff] hover:bg-white transition-all">
+                                    <input type="checkbox" name="medicine_taken" checked class="w-6 h-6 rounded border-[#c1c6d4] text-[#005dac] focus:ring-[#005dac]">
+                                    <div>
+                                        <span class="font-bold text-[#191c1e] block leading-none mb-1">Medication Completed</span>
+                                        <span class="text-[11px] font-medium text-slate-400 uppercase tracking-tighter italic">Vital for stability</span>
+                                    </div>
+                                </label>
+
+                                <label class="flex items-center gap-6 p-6 bg-[#f7f9fb] rounded-3xl cursor-pointer border-2 border-transparent hover:border-rose-100 hover:bg-white transition-all">
+                                    <input type="checkbox" name="dizziness" class="w-6 h-6 rounded border-[#c1c6d4] text-[#ba1a1a] focus:ring-[#ba1a1a]">
+                                    <div>
+                                        <span class="font-bold text-[#191c1e] block leading-none mb-1">Reporting Dizziness</span>
+                                        <span class="text-[11px] font-medium text-slate-400 uppercase tracking-tighter italic">Symptom monitoring</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-[#005dac] text-white py-6 rounded-3xl font-extrabold text-xl hover:bg-[#004786] shadow-xl shadow-blue-100 transition-all flex items-center justify-center gap-4">
+                            Submit Log Entry
+                            <span class="material-symbols-outlined text-3xl">send</span>
+                        </button>
+                    </form>
+
+                    <div id="patientResponseCard" class="hidden card-custom h-full flex flex-col items-center justify-center p-14 text-center border-t-8 border-t-[#005dac] animate-in fade-in zoom-in duration-500">
+                         <div id="patientIcon" class="w-24 h-24 rounded-3xl flex items-center justify-center mb-10 text-5xl shadow-lg transition-all"></div>
+                         <h2 id="patientStatusTitle" class="text-4xl font-extrabold mb-6 text-[#191c1e] tracking-tighter leading-none"></h2>
+                         <p id="patientResponseMessage" class="text-slate-500 text-xl font-medium leading-relaxed mb-12"></p>
+                         <button onclick="showSection('history')" class="group flex items-center gap-3 px-10 py-5 bg-[#191c1e] text-white rounded-2xl font-extrabold text-lg hover:bg-black transition-all shadow-xl">
+                            View My History
+                            <span class="material-symbols-outlined group-hover:translate-x-2 transition-transform">arrow_forward</span>
+                         </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: HISTORY (PATIENT) -->
+        <section id="history-section" class="section-content hidden">
+            <div class="max-w-5xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+                    <div>
+                        <h1 class="text-4xl font-extrabold text-[#191c1e] tracking-tight">Recovery Timeline</h1>
+                        <p class="text-slate-500 font-medium text-lg mt-2">Historical view of clinical and self-reported data.</p>
+                    </div>
+                    <button onclick="loadPatientHistory()" class="flex items-center gap-2 bg-white px-6 py-3 rounded-2xl shadow-sm border border-[#eceef0] text-[#005dac] font-bold hover:bg-[#f7f9fb] transition-all">
+                        <span class="material-symbols-outlined text-sm">sync</span>
+                        Refresh Data
+                    </button>
+                </div>
+
+                <div class="grid lg:grid-cols-12 gap-10">
+                    <div class="lg:col-span-4 space-y-8">
+                        <div class="card-custom p-10">
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-8 italic">Latest Analysis</h3>
+                            <div id="latestRiskCard" class="p-10 rounded-3xl text-center border-4 border-dashed border-[#f2f4f6]">
+                                <span class="material-symbols-outlined text-6xl mb-4 text-[#d8dadc]">query_stats</span>
+                                <p class="text-sm text-slate-300 font-bold">Awaiting assessment...</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-[#191c1e] p-10 rounded-[2.5rem] text-white relative overflow-hidden shadow-2xl">
+                            <span class="material-symbols-outlined absolute -right-6 -bottom-6 text-[12rem] opacity-5">healing</span>
+                            <h3 class="text-[11px] font-bold text-[#d4e3ff] uppercase tracking-widest mb-6 italic">Clinical Note</h3>
+                            <p class="text-xl font-bold leading-relaxed italic relative z-10">"Patient adherence to daily monitoring improves recovery outcomes significantly."</p>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-8">
+                        <div class="card-custom overflow-hidden">
+                            <div class="px-10 py-8 border-b border-[#f2f4f6] bg-[#f7f9fb]/50 flex justify-between items-center">
+                                <span class="font-extrabold text-[#191c1e] uppercase tracking-widest text-[11px]">Activity Stream</span>
+                                <span class="px-4 py-1 bg-[#d4e3ff] text-[#005dac] rounded-full text-[10px] font-bold">MONITORING ACTIVE</span>
+                            </div>
+                            <div id="historyList" class="divide-y divide-[#f2f4f6] max-h-[650px] overflow-y-auto">
+                                <div class="p-24 text-center">
+                                    <div class="w-20 h-20 bg-[#f7f9fb] rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <span class="material-symbols-outlined text-4xl text-[#d8dadc]">history</span>
+                                    </div>
+                                    <p class="text-slate-300 font-bold italic text-lg">No records found for this ID.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ALERTS (ADMIN) -->
+        <section id="alerts-section" class="section-content hidden">
+            <div class="mb-12 flex justify-between items-center">
+                <div>
+                    <h1 class="text-4xl font-extrabold text-[#191c1e] tracking-tight leading-none mb-2">Clinical Oversight</h1>
+                    <p class="text-slate-500 font-medium">Prioritized safety alerts from population monitoring.</p>
+                </div>
+                <button onclick="loadAlerts()" class="bg-[#d4e3ff] text-[#005dac] px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-[#b4cfff] transition-all">
+                    <span class="material-symbols-outlined text-sm">sync</span> Sync
+                </button>
+            </div>
+            <div id="alertsContainer" class="grid gap-6"></div>
+        </section>
+
+        <!-- SECTION: DASHBOARD (ADMIN) -->
+        <section id="dashboard-section" class="section-content hidden">
+            <div class="mb-12">
+                <h1 class="text-4xl font-extrabold text-[#191c1e] tracking-tight leading-none mb-2">Patient Registry</h1>
+                <p class="text-slate-500 font-medium">Central management for monitored individuals.</p>
+            </div>
+
+            <div class="grid sm:grid-cols-3 gap-8 mb-12">
+                <div class="card-custom p-10 border-l-[12px] border-l-[#005dac]">
+                    <h5 class="text-slate-400 text-[11px] font-bold uppercase tracking-widest mb-4 italic">Population</h5>
+                    <h2 id="totalPatients" class="text-6xl font-extrabold text-[#191c1e] tracking-tighter italic">0</h2>
+                </div>
+                <div class="card-custom p-10 border-l-[12px] border-l-[#ba1a1a]">
+                    <h5 class="text-slate-400 text-[11px] font-bold uppercase tracking-widest mb-4 italic">High Risk</h5>
+                    <h2 id="activeAlertsCount" class="text-6xl font-extrabold text-[#ba1a1a] tracking-tighter italic">0</h2>
+                </div>
+                <div class="card-custom p-10 border-l-[12px] border-l-[#10b981]">
+                    <h5 class="text-slate-400 text-[11px] font-bold uppercase tracking-widest mb-4 italic">Stable</h5>
+                    <h2 id="stableCount" class="text-6xl font-extrabold text-[#10b981] tracking-tighter italic">0</h2>
+                </div>
+            </div>
+
+            <div class="card-custom overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-[#f7f9fb] text-slate-400 text-[11px] font-bold uppercase tracking-widest italic border-b border-[#eceef0]">
+                        <tr>
+                            <th class="px-10 py-8">Patient Profile</th>
+                            <th class="px-10 py-8 text-center">Reference ID</th>
+                            <th class="px-10 py-8">Active Status</th>
+                            <th class="px-10 py-8 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientTableBody" class="divide-y divide-[#f2f4f6]"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let currentRole = null;
+        let currentPatientID = null;
+
+        function togglePasswordField() {
+            const role = document.getElementById('loginRole').value;
+            document.getElementById('passwordField').style.display = role === 'admin' ? 'block' : 'none';
+        }
+
+        // Initialize password field visibility
+        togglePasswordField();
+
+        async function handleLogin() {
+            const role = document.getElementById('loginRole').value;
+            const identifier = document.getElementById('loginIdentifier').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!identifier) {
+                alert("Please enter your identifier.");
+                return;
+            }
+
+            try {
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role, identifier, password })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    if (role === 'patient') currentPatientID = identifier;
+                    setRole(role);
+                } else {
+                    alert(data.message || "Login failed");
+                }
+            } catch (err) {
+                alert("Connection error: " + err.message);
+            }
+        }
+
+        async function showIdHelper() {
+            const helper = document.getElementById('idHelper');
+            if (!helper.classList.contains('hidden')) {
+                helper.classList.add('hidden');
+                return;
+            }
+
+            try {
+                // We'll use a public endpoint or allow admin-style listing for the helper in demo mode
+                // Since /patients/ is now admin-protected, we might need a separate public 'ids' endpoint
+                // or just handle it if it fails. For this demo, let's assume we can fetch them.
+                const res = await fetch('/patients/ids');
+                const ids = await res.json();
+                const list = document.getElementById('idList');
+                list.innerHTML = ids.map(id => `
+                    <button onclick="selectId('${id}')" class="px-3 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-600 hover:border-[#005dac] hover:text-[#005dac] transition-all">${id}</button>
+                `).join('');
+                helper.classList.remove('hidden');
+            } catch (err) {
+                console.log("Could not fetch IDs for helper");
+            }
+        }
+
+        function selectId(id) {
+            document.getElementById('loginIdentifier').value = id;
+            document.getElementById('idHelper').classList.add('hidden');
+        }
+
+        function viewPatientHistory(id) {
+            currentPatientID = id;
+            showSection('history');
+        }
+
+        function goToRoleSelection() {
+            currentRole = null;
+            document.getElementById('mainNav').classList.add('hidden');
+
+            // Clean up nav states
+            const adminNav = document.getElementById('adminNav');
+            const patientNav = document.getElementById('patientNav');
+            adminNav.classList.add('hidden');
+            adminNav.classList.remove('sm:flex');
+            patientNav.classList.add('hidden');
+            patientNav.classList.remove('sm:flex');
+
+            document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
+            document.getElementById('role-section').classList.remove('hidden');
+            // Reset fields
+            document.getElementById('loginIdentifier').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        function setRole(role) {
+            currentRole = role;
+            document.getElementById('mainNav').classList.remove('hidden');
+
+            const adminNav = document.getElementById('adminNav');
+            const patientNav = document.getElementById('patientNav');
+
+            if (role === 'admin') {
+                adminNav.classList.remove('hidden');
+                adminNav.classList.add('sm:flex');
+                patientNav.classList.add('hidden');
+                patientNav.classList.remove('sm:flex');
+                showSection('predict');
+            } else if (role === 'patient') {
+                adminNav.classList.add('hidden');
+                adminNav.classList.remove('sm:flex');
+                patientNav.classList.remove('hidden');
+                patientNav.classList.add('sm:flex');
+                showSection('monitoring');
+            }
+        }
+
+        async function logout() {
+            await fetch('/logout');
+            currentRole = null;
+            currentPatientID = null;
+            goToRoleSelection();
+        }
+
+        function showSection(name) {
+            // Role-based access control for frontend sections
+            const adminSections = ['predict', 'alerts', 'dashboard', 'history'];
+            const patientSections = ['monitoring', 'history'];
+
+            if (currentRole === 'admin' && !adminSections.includes(name)) return;
+            if (currentRole === 'patient' && !patientSections.includes(name)) return;
+
+            document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
+            const target = document.getElementById(`${name}-section`);
+            if(target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-link').forEach(l => {
+                l.classList.remove('active');
+                if(l.innerText.toLowerCase().replace('-', '').includes(name.substring(0,3))) l.classList.add('active');
+            });
+
+            if (name === 'alerts') loadAlerts();
+            if (name === 'dashboard') loadDashboard();
+            if (name === 'history') loadPatientHistory();
+            if (name === 'monitoring' && currentPatientID) {
+                document.getElementById('monitoring_pid').value = currentPatientID;
+            }
+        }
+
+        function fillSampleData() {
+            const id = "PAT-" + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('f_name').value = "Marcus Thorne";
+            document.getElementById('f_pid').value = id;
+            document.getElementById('f_age').value = "[70-80)";
+            document.getElementById('f_inpatient').value = "2";
+            document.getElementById('f_meds').value = "15";
+        }
+
+        document.getElementById('predictionForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('predictBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<span>Processing AI Analysis...</span>`;
+
+            const formData = new FormData(e.target);
+            const rawData = Object.fromEntries(formData.entries());
+
+            const payload = {
+                patient_id: rawData.patient_id,
+                name: rawData.name,
+                age: rawData.age,
+                gender: rawData.gender,
+                features: {
+                    ...rawData,
+                    time_in_hospital: parseInt(rawData.time_in_hospital),
+                    number_inpatient: parseInt(rawData.number_inpatient),
+                    num_medications: parseInt(rawData.num_medications)
+                }
+            };
+
+            try {
+                await fetch('/patients/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const res = await fetch('/predict/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ patient_id: payload.patient_id, features: payload.features }) });
+                const result = await res.json();
+                if (res.ok) displayAdminResult(result);
+            } catch (err) { alert("Analysis error: " + err.message); }
+            finally {
+                btn.disabled = false;
+                btn.innerHTML = `Run AI Simulation<span class="material-symbols-outlined text-3xl">psychology</span>`;
+            }
+        };
+
+        function displayAdminResult(res) {
+            document.getElementById('resultPlaceholder').classList.add('hidden');
+            const card = document.getElementById('resultCard');
+            card.classList.remove('hidden');
+
+            document.getElementById('riskLevelDisplay').innerText = res.risk_level;
+            document.getElementById('riskScoreDisplay').innerText = Math.round(res.probability * 100) + "%";
+
+            const header = document.getElementById('riskHeader');
+            header.className = "p-12 text-center text-white relative " + (res.risk_level === 'Red' ? 'bg-[#ba1a1a]' : res.risk_level === 'Yellow' ? 'bg-amber-500' : 'bg-emerald-600');
+        }
+
+        document.getElementById('reportForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            data.medicine_taken = formData.get('medicine_taken') === 'on';
+            data.dizziness = formData.get('dizziness') === 'on';
+            currentPatientID = data.patient_id;
+
+            try {
+                const res = await fetch('/daily-report/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                if (res.ok) {
+                    const histRes = await fetch(`/patient/${currentPatientID}/history`);
+                    const history = await histRes.json();
+                    displayPatientFeedback(history);
+                } else { alert("Electronic ID not recognized. Please verify with clinical staff."); }
+            } catch (err) { alert("Network connectivity error."); }
+        };
+
+        function displayPatientFeedback(history) {
+            const latest = history.predictions[0];
+            const respCard = document.getElementById('patientResponseCard');
+            respCard.classList.remove('hidden');
+
+            const icon = document.getElementById('patientIcon');
+            const title = document.getElementById('patientStatusTitle');
+            const msg = document.getElementById('patientResponseMessage');
+
+            if (latest.risk_level === 'Green') {
+                respCard.style.borderTopColor = "#10b981";
+                icon.innerText = "verified";
+                icon.className = "w-24 h-24 rounded-3xl flex items-center justify-center mb-10 text-5xl bg-emerald-50 text-emerald-600 shadow-sm";
+                title.innerText = "Progress Verified";
+            } else if (latest.risk_level === 'Yellow') {
+                respCard.style.borderTopColor = "#f59e0b";
+                icon.innerText = "monitoring";
+                icon.className = "w-24 h-24 rounded-3xl flex items-center justify-center mb-10 text-5xl bg-amber-50 text-amber-600 shadow-sm";
+                title.innerText = "Care Optimization";
+            } else {
+                respCard.style.borderTopColor = "#ba1a1a";
+                icon.innerText = "emergency";
+                icon.className = "w-24 h-24 rounded-3xl flex items-center justify-center mb-10 text-5xl bg-rose-50 text-rose-600 shadow-sm";
+                title.innerText = "Clinical Escalation";
+            }
+            msg.innerText = latest.recommendation;
+        }
+
+        async function loadPatientHistory() {
+            if (!currentPatientID) {
+                const pidInput = document.getElementById('monitoring_pid').value;
+                if (!pidInput) {
+                   document.getElementById('historyList').innerHTML = '<div class="p-24 text-center text-slate-300 font-bold italic">Identity verification required in Check-in portal.</div>';
+                   return;
+                }
+                currentPatientID = pidInput;
+            }
+
+            try {
+                const res = await fetch(`/patient/${currentPatientID}/history`);
+                const data = await res.json();
+
+                const latest = data.predictions[0];
+                const riskCard = document.getElementById('latestRiskCard');
+                if (latest) {
+                    riskCard.className = `p-10 rounded-3xl text-center text-white border-0 shadow-lg ${latest.risk_level === 'Red' ? 'bg-[#ba1a1a]' : latest.risk_level === 'Yellow' ? 'bg-amber-500' : 'bg-emerald-600'}`;
+                    riskCard.innerHTML = `<h4 class="font-extrabold text-4xl leading-none italic">${latest.risk_level}</h4><p class="text-[10px] font-bold uppercase tracking-widest mt-4 opacity-70">SYSTEM RISK: ${Math.round(latest.risk_score*100)}%</p>`;
+                }
+
+                // Merge and Sort Timeline
+                const timeline = [
+                    ...data.reports.map(r => ({ ...r, type: 'report' })),
+                    ...data.predictions.map(p => ({ ...p, type: 'prediction' })),
+                    ...data.alerts.map(a => ({ ...a, type: 'alert' }))
+                ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                const list = document.getElementById('historyList');
+                list.innerHTML = timeline.length ? timeline.map(item => {
+                    const date = new Date(item.created_at);
+                    const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                    if (item.type === 'report') {
+                        return `
+                            <div class="px-10 py-8 flex flex-col sm:flex-row justify-between items-start sm:items-center hover:bg-[#f7f9fb] transition-all group border-l-4 border-l-slate-200">
+                                <div class="flex items-center gap-6 mb-6 sm:mb-0">
+                                    <div class="w-14 h-14 rounded-2xl bg-slate-100 flex flex-col items-center justify-center text-slate-400 group-hover:bg-[#005dac] group-hover:text-white transition-all">
+                                        <span class="text-[9px] font-bold uppercase leading-none mb-1">${date.toLocaleString('default', { month: 'short' })}</span>
+                                        <span class="text-xl font-extrabold leading-none">${date.getDate()}</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-extrabold text-[#191c1e] text-lg">${timeStr}</div>
+                                        <div class="flex gap-2 items-center mt-2">
+                                            <span class="px-2 py-0.5 bg-slate-100 rounded text-[9px] font-bold text-slate-500 uppercase">Daily Self-Report</span>
+                                            ${item.medicine_taken ? '<span class="px-2 py-0.5 bg-emerald-100 rounded text-[9px] font-bold text-emerald-600 uppercase">Medicated</span>' : '<span class="px-2 py-0.5 bg-rose-100 rounded text-[9px] font-bold text-rose-600 uppercase">Missed Dose</span>'}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-10 w-full sm:w-auto justify-between sm:justify-end">
+                                    <div class="text-right">
+                                        <div class="text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-1">GLUCOSE</div>
+                                        <div class="font-extrabold text-[#191c1e] text-2xl italic">${item.sugar_level}<span class="text-[10px] ml-1 font-bold text-slate-300 uppercase italic">mg/dL</span></div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-1">FATIGUE</div>
+                                        <div class="font-extrabold text-[#191c1e] text-2xl italic">${item.fatigue_level}<span class="text-[10px] ml-1 font-bold text-slate-300 uppercase italic">/10</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else if (item.type === 'alert') {
+                        const color = item.severity === 'Red' ? 'rose' : 'amber';
+                        return `
+                            <div class="px-10 py-6 bg-${color}-50/50 border-l-4 border-l-${color}-500">
+                                <div class="flex items-center gap-4">
+                                    <span class="material-symbols-outlined text-${color}-600">warning</span>
+                                    <div>
+                                        <div class="text-[10px] font-black text-${color}-600 uppercase tracking-widest">${item.alert_type} - ${timeStr}</div>
+                                        <p class="text-sm font-bold text-[#191c1e] mt-1">${item.message}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        const isInitial = item.is_initial_discharge;
+                        const color = item.risk_level === 'Red' ? 'rose' : item.risk_level === 'Yellow' ? 'amber' : 'emerald';
+                        const bgColor = item.risk_level === 'Red' ? 'bg-rose-50' : item.risk_level === 'Yellow' ? 'bg-amber-50' : 'bg-emerald-50';
+                        const textColor = item.risk_level === 'Red' ? 'text-rose-600' : item.risk_level === 'Yellow' ? 'text-amber-600' : 'text-emerald-600';
+                        const borderColor = item.risk_level === 'Red' ? 'border-rose-500' : item.risk_level === 'Yellow' ? 'border-amber-500' : 'border-emerald-500';
+
+                        return `
+                            <div class="px-10 py-8 flex flex-col sm:flex-row justify-between items-start sm:items-center ${bgColor}/40 hover:${bgColor}/60 transition-all group border-l-4 ${borderColor}">
+                                <div class="flex items-center gap-6 mb-6 sm:mb-0">
+                                    <div class="w-14 h-14 rounded-2xl ${bgColor} flex flex-col items-center justify-center ${textColor} shadow-sm">
+                                        <span class="text-[9px] font-bold uppercase leading-none mb-1">${date.toLocaleString('default', { month: 'short' })}</span>
+                                        <span class="text-xl font-extrabold leading-none">${date.getDate()}</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-extrabold text-[#191c1e] text-lg">${timeStr}</div>
+                                        <div class="flex gap-2 items-center mt-2">
+                                            <span class="px-2 py-0.5 bg-[#191c1e] text-white rounded text-[9px] font-black uppercase tracking-widest">
+                                                ${isInitial ? 'Initial Clinical Audit' : 'AI Trend Re-assessment'}
+                                            </span>
+                                            <span class="text-[10px] font-bold ${textColor} uppercase italic">Risk: ${item.risk_level} (${Math.round(item.risk_score*100)}%)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-1 max-w-md ml-auto text-right">
+                                    <p class="text-xs font-bold text-slate-700 italic leading-relaxed bg-white/50 p-4 rounded-2xl border border-white/50 shadow-sm">
+                                        "${item.recommendation}"
+                                    </p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }).join('') : '<div class="p-24 text-center text-slate-300 font-bold italic text-lg">Timeline initialization pending.</div>';
+            } catch (err) { }
+        }
+
+        async function loadAlerts() {
+            const container = document.getElementById('alertsContainer');
+            try {
+                const res = await fetch('/dashboard/alerts');
+                const alerts = await res.json();
+
+                // Update Badge
+                const badge = document.getElementById('navAlertBadge');
+                if (alerts.length > 0) {
+                    badge.innerText = alerts.length;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+
+                container.innerHTML = alerts.length ? alerts.map(a => `
+                    <div class="card-custom p-8 border-l-[12px] ${a.severity === 'Red' ? 'border-l-rose-500' : 'border-l-amber-500'} flex flex-col md:flex-row justify-between items-center gap-6 hover:shadow-xl transition-all duration-300">
+                        <div class="flex gap-6 items-center flex-1">
+                             <div class="w-16 h-16 rounded-2xl flex items-center justify-center ${a.severity === 'Red' ? 'bg-rose-50 text-rose-500' : 'bg-amber-50 text-amber-500'}">
+                                <span class="material-symbols-outlined text-3xl font-bold">${a.severity === 'Red' ? 'emergency_home' : 'warning'}</span>
+                             </div>
+                             <div>
+                                <div class="flex items-center gap-3 mb-1">
+                                    <h4 class="text-xl font-extrabold text-[#191c1e]">${a.patient_name}</h4>
+                                    <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${a.severity === 'Red' ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'}">${a.severity} Priority</span>
+                                </div>
+                                <p class="text-slate-500 font-medium text-sm leading-relaxed">${a.message}</p>
+                                <div class="flex gap-4 mt-3">
+                                    <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                        <span class="material-symbols-outlined text-sm">category</span>
+                                        ${a.type}
+                                    </div>
+                                    <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                        <span class="material-symbols-outlined text-sm">schedule</span>
+                                        ${new Date(a.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                    </div>
+                                </div>
+                             </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button class="px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all">Dismiss</button>
+                            <button class="px-6 py-3 bg-[#191c1e] text-white rounded-xl font-bold text-sm hover:bg-black transition-all shadow-lg shadow-slate-200">Review Case</button>
+                        </div>
+                    </div>
+                `).join('') : `
+                    <div class="flex flex-col items-center justify-center py-32 bg-white rounded-[3rem] border border-dashed border-slate-200">
+                        <div class="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mb-6">
+                            <span class="material-symbols-outlined text-4xl">verified_user</span>
+                        </div>
+                        <h3 class="text-2xl font-black text-[#191c1e]">All Systems Clear</h3>
+                        <p class="text-slate-400 font-bold mt-2 italic">No active clinical alerts for the current population.</p>
+                    </div>
+                `;
+            } catch (err) { }
+        }
+
+        async function loadDashboard() {
+            try {
+                const [pRes, aRes] = await Promise.all([fetch('/patients/'), fetch('/dashboard/alerts')]);
+                const patients = await pRes.json();
+                const alerts = await aRes.json();
+
+                document.getElementById('totalPatients').innerText = patients.length;
+                document.getElementById('activeAlertsCount').innerText = alerts.length;
+                document.getElementById('stableCount').innerText = Math.max(0, patients.length - alerts.length);
+
+                document.getElementById('patientTableBody').innerHTML = patients.map(p => {
+                    const hasAlert = alerts.some(a => a.patient_name === p.name);
+                    return `
+                    <tr class="table-row-hover group transition-all">
+                        <td class="px-10 py-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 text-[#005dac] flex items-center justify-center font-black text-lg shadow-sm">
+                                    ${p.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <div class="font-extrabold text-[#191c1e] text-base">${p.name}</div>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">${p.age}</span>
+                                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">${p.gender}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-10 py-6 text-center">
+                            <span class="font-mono font-bold text-[#005dac] text-xs bg-blue-50/50 px-3 py-1.5 rounded-lg border border-blue-100/50 tracking-tight">
+                                ${p.patient_id}
+                            </span>
+                        </td>
+                        <td class="px-10 py-6">
+                            <div class="flex items-center gap-3">
+                                ${hasAlert ? `
+                                    <div class="flex items-center gap-2 px-3 py-1.5 bg-rose-50 rounded-full border border-rose-100">
+                                        <div class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
+                                        <span class="text-[10px] font-black text-rose-600 uppercase tracking-widest">Action Required</span>
+                                    </div>
+                                ` : `
+                                    <div class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-full border border-emerald-100">
+                                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                        <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Stable</span>
+                                    </div>
+                                `}
+                            </div>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="viewPatientHistory('${p.patient_id}')" class="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-[#005dac] hover:border-[#005dac] hover:shadow-md transition-all">
+                                    <span class="material-symbols-outlined text-lg">monitoring</span>
+                                </button>
+                                <button class="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-[#005dac] hover:border-[#005dac] hover:shadow-md transition-all">
+                                    <span class="material-symbols-outlined text-lg">edit_document</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `}).join('');
+            } catch (err) {}
+        }
+    </script>
+</body>
+</html>

@@ -1,7 +1,41 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    totalPatients: 0,
+    activeMonitoring: 0,
+    highRisk: 0,
+    newAlerts: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [patientsRes, alertsRes] = await Promise.all([
+          fetch('http://localhost:8000/patients/'),
+          fetch('http://localhost:8000/dashboard/alerts')
+        ]);
+        const patients = await patientsRes.json();
+        const alerts = await alertsRes.json();
+
+        // Simulate some logic for stats since backend is simple
+        setStats({
+          totalPatients: patients.length,
+          activeMonitoring: patients.length > 0 ? Math.floor(patients.length * 0.8) : 0,
+          highRisk: alerts.filter(a => a.severity === 'Red').length,
+          newAlerts: alerts.length
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error("Dashboard fetch error", error);
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
   return (
     <div className="space-y-lg">
@@ -28,48 +62,57 @@ export default function AdminDashboard() {
           </button>
         </div>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md">
         <div className="glass-card p-md rounded-xl ambient-shadow">
           <div className="flex justify-between items-start mb-sm">
             <div className="p-2 bg-primary/10 rounded-lg">
               <span className="material-symbols-outlined text-primary">group</span>
             </div>
-            <span className="text-emerald-600 font-label-sm flex items-center">+2.4%</span>
           </div>
           <p className="text-secondary font-label-md">Total Patients</p>
-          <h3 className="font-headline-md text-headline-md text-on-surface">1,240</h3>
+          <h3 className="font-headline-md text-headline-md text-on-surface">
+            {loading ? "..." : stats.totalPatients}
+          </h3>
         </div>
+
         <div className="glass-card p-md rounded-xl ambient-shadow">
           <div className="flex justify-between items-start mb-sm">
             <div className="p-2 bg-tertiary-fixed rounded-lg">
               <span className="material-symbols-outlined text-tertiary">monitor_heart</span>
             </div>
-            <span className="text-secondary font-label-sm">Stable</span>
           </div>
           <p className="text-secondary font-label-md">Active Monitoring</p>
-          <h3 className="font-headline-md text-headline-md text-on-surface">850</h3>
+          <h3 className="font-headline-md text-headline-md text-on-surface">
+            {loading ? "..." : stats.activeMonitoring}
+          </h3>
         </div>
+
         <div className="glass-card p-md rounded-xl ambient-shadow">
           <div className="flex justify-between items-start mb-sm">
             <div className="p-2 bg-error-container rounded-lg">
               <span className="material-symbols-outlined text-error">warning</span>
             </div>
-            <span className="text-error font-label-sm">+5 today</span>
           </div>
-          <p className="text-secondary font-label-md">High Risk</p>
-          <h3 className="font-headline-md text-headline-md text-on-surface">42</h3>
+          <p className="text-secondary font-label-md">High Risk Patients</p>
+          <h3 className="font-headline-md text-headline-md text-on-surface">
+            {loading ? "..." : stats.highRisk}
+          </h3>
         </div>
+
         <div className="glass-card p-md rounded-xl ambient-shadow">
           <div className="flex justify-between items-start mb-sm">
             <div className="p-2 bg-secondary-container rounded-lg">
               <span className="material-symbols-outlined text-on-secondary-container">notifications_active</span>
             </div>
-            <span className="bg-primary text-white text-[10px] px-2 py-0.5 rounded-full">Urgent</span>
           </div>
-          <p className="text-secondary font-label-md">New Alerts</p>
-          <h3 className="font-headline-md text-headline-md text-on-surface">12</h3>
+          <p className="text-secondary font-label-md">Recent Alerts</p>
+          <h3 className="font-headline-md text-headline-md text-on-surface">
+            {loading ? "..." : stats.newAlerts}
+          </h3>
         </div>
       </div>
+
       <div className="space-y-sm">
         <h4 className="font-label-md text-label-md font-bold uppercase tracking-wider text-secondary">Quick Actions</h4>
         <div className="flex flex-wrap gap-sm">
