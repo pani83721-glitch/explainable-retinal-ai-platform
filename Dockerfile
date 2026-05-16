@@ -24,4 +24,7 @@ EXPOSE 8000
 
 # Start the application using gunicorn
 # Render dynamically injects $PORT, so we must use sh -c to expand it
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT app:app"]
+# --timeout 120: Prevent worker timeout on slow free-tier instances
+# --preload: Load app before forking to save memory
+# --graceful-timeout 30: Allow graceful shutdown
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT --timeout 120 --graceful-timeout 30 --preload --workers 1 app:app"]

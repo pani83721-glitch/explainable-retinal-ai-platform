@@ -9,3 +9,4 @@ joblib
 python-multipart
 gunicorn
 python-dotenv
+werkzeug
