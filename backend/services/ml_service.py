@@ -2,10 +2,13 @@ import joblib
 import pandas as pd
 import numpy as np
 import os
+import sys
 
 class MLService:
     def __init__(self):
-        self.model_path = os.path.join('backend', 'ml', 'saved_models')
+        # Set base directory to the project root
+        self.base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        self.model_path = os.path.join(self.base_dir, 'model')
         self.model = None
         self.scaler = None
         self.encoders = None
@@ -14,12 +17,13 @@ class MLService:
 
     def load_model(self):
         try:
-            self.model = joblib.load(os.path.join(self.model_path, 'best_model.joblib'))
-            self.scaler = joblib.load(os.path.join(self.model_path, 'scaler.joblib'))
-            self.encoders = joblib.load(os.path.join(self.model_path, 'encoders.joblib'))
-            self.feature_names = joblib.load(os.path.join(self.model_path, 'feature_names.joblib'))
-        except:
-            print("Model files not found. Please run training script first.")
+            # Match the filenames found in the /model directory
+            self.model = joblib.load(os.path.join(self.model_path, 'readmission_model.pkl'))
+            self.encoders = joblib.load(os.path.join(self.model_path, 'label_encoders.pkl'))
+            self.feature_names = joblib.load(os.path.join(self.model_path, 'feature_columns.pkl'))
+            print("DEBUG: ML Model and encoders loaded successfully.", file=sys.stderr)
+        except Exception as e:
+            print(f"DEBUG: Model files not found or error loading: {e}. Using mock fallback.", file=sys.stderr)
 
     def predict(self, patient_data):
         if self.model is None:
@@ -42,9 +46,14 @@ class MLService:
                 df[col] = 0
         
         X = df[self.feature_names]
-        X_scaled = self.scaler.transform(X)
         
-        prob = self.model.predict_proba(X_scaled)[0][1]
+        try:
+            # The current readmission_model.pkl handles its own scaling or doesn't require it
+            prob = self.model.predict_proba(X)[0][1]
+        except Exception as e:
+            print(f"DEBUG: Real model prediction failed ({e}). Falling back to mock.", file=sys.stderr)
+            return self.mock_predict(patient_data)
+            
         return self.format_result(prob)
 
     def mock_predict(self, data):

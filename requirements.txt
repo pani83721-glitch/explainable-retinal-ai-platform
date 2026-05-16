@@ -7,4 +7,5 @@ scikit-learn
 xgboost
 joblib
 python-multipart
-sqlite3
+gunicorn
+python-dotenv

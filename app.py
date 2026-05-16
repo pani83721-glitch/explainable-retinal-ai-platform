@@ -4,6 +4,10 @@ import datetime
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
+
+# Load environment variables from .env file for local development
+load_dotenv()
 
 # Import our modular components
 from backend.db.database import engine, SessionLocal
@@ -31,7 +35,7 @@ except Exception as e:
     print(f"ERROR: Database initialization failed: {e}", file=sys.stderr)
 
 app = Flask(__name__, template_folder='templates')
-app.secret_key = "glucometer_secret_key_v1"
+app.secret_key = os.getenv("SECRET_KEY", "glucometer_secret_key_v1")
 CORS(app) 
 
 @app.route("/")
@@ -302,9 +306,10 @@ def get_patient_history(patient_id):
         db.close()
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
     print("\n" + "="*50)
     print("  GLUCOGUARD AI SYSTEM STARTING...")
-    print("  FRONTEND: http://127.0.0.1:8000")
-    print("  BACKEND API: http://127.0.0.1:8000/health")
+    print(f"  LOCAL ACCESS: http://127.0.0.1:{port}")
+    print(f"  BACKEND API: http://127.0.0.1:{port}/health")
     print("="*50 + "\n")
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=True)

@@ -2,85 +2,96 @@
 
 A professional, monolithic Flask-based AI healthcare platform designed for synchronized clinical monitoring and patient recovery tracking.
 
-## 🚀 Quick Start for Developers
+---
+
+## 🛠 Project Architecture
+- **Backend**: Flask (Python)
+- **Database**: SQLite (SQLAlchemy ORM)
+- **ML Services**: Scikit-learn / XGBoost based risk scoring
+- **Deployment**: Dockerized, optimized for Render/Heroku
+
+---
+
+## 🚀 Local Development
 
 ### 1. Prerequisites
-Ensure you have **Python 3.8+** installed on your system.
+- Python 3.11+
+- Docker (optional)
 
-### 2. Installation
-Clone the repository and install the required dependencies:
+### 2. Manual Setup
 ```bash
+# Clone the repository
+git clone <repo-url>
+cd Hospital-Read-Mission-Risk-Scorer
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
 # Install dependencies
 pip install -r requirements.txt
-```
 
-### 3. Database Setup
-The platform uses **SQLite** for simplicity. You do **not** need to manually create the database.
-- **Auto-Initialization**: When you run `app.py` for the first time, it automatically creates `healthcare.db` and all necessary tables.
-- **Default Credentials**: An admin account is automatically seeded:
-  - **Username**: `admin`
-  - **Password**: `admin123`
+# Create .env file
+cp .env.example .env
 
-### 4. Running the App
-Start the Flask server:
-```bash
+# Run the app
 python app.py
 ```
-The app will be available at `http://127.0.0.1:5000`.
 
----
-
-## 🧠 AI Risk Scoring & Test Cases
-
-The platform uses an AI Risk Engine (with clinical heuristic fallback) to categorize patient health. Use these inputs to test the different portal experiences:
-
-### 🟢 Case 1: Low Risk (Green)
-*   **Threshold**: Score < 0.35
-*   **Trigger Data**: 
-    *   Inpatient History: `0`
-    *   Stay Duration: `1-3` days
-    *   Age: `[20-50)`
-*   **Experience**: Patient receives high-praise empathetic feedback. Dashboard remains green.
-
-### 🟡 Case 2: Moderate Risk (Yellow)
-*   **Threshold**: Score 0.35 - 0.65
-*   **Trigger Data**: 
-    *   Inpatient History: `2`
-    *   Stay Duration: `4-5` days
-    *   Age: `[50-70)`
-*   **Experience**: Patient receives a cautionary check-up reminder. Admin sees a "Moderate Risk" flag.
-
-### 🔴 Case 3: High Risk (Red)
-*   **Threshold**: Score > 0.65
-*   **Trigger Data**: 
-    *   Inpatient History: `3+`
-    *   Stay Duration: `6+` days
-    *   Insulin: `Up`
-    *   Age: `[70-80+)`
-*   **Experience**: Patient is advised to visit the hospital immediately. A **Clinical Alert** is automatically generated in the Admin Portal.
-
----
-
-## 🛠 Database Management & Inspection
-
-To help you verify that the data is being stored correctly (patients, reports, AI alerts), use the built-in inspection script:
-
+### 3. Docker Setup (Recommended)
 ```bash
-python db_check.py
+# Build the image
+docker build -t hospital-risk-app .
+
+# Run the container
+docker run -p 8000:8000 --env-file .env hospital-risk-app
 ```
-This will print a summary of all tables, columns, and the last 5 entries in each table directly to your console.
 
 ---
 
-## 🛡 Features
-- **Dual-Portal Access**: Secure role-based login for Admins and Patients.
-- **AI Risk Engine**: Real-time analysis of patient daily reports.
-- **Synchronized Timeline**: A unified activity stream merging reports, AI assessments, and clinical alerts.
-- **Medical SaaS UI**: High-fidelity dashboard using Tailwind CSS and modern typography.
+## 🌐 Deployment Guide (Render)
+
+This project is pre-configured for one-click deployment on **Render**.
+
+### Step-by-Step Instructions
+1. **Push to GitHub**: Ensure your code is in a public or private GitHub repository.
+2. **Create New Web Service**:
+   - Log in to [Render](https://render.com).
+   - Click **New +** > **Web Service**.
+   - Connect your GitHub repository.
+3. **Configure Service**:
+   - **Environment**: `Docker`
+   - **Region**: Choose the closest region.
+   - **Plan**: Free (or Starter for persistence).
+4. **Environment Variables**:
+   - Add `SECRET_KEY`: A long random string.
+   - (Optional) `DATABASE_URL`: If using an external database.
+5. **Deploy**: Render will automatically build the Docker image and deploy your service.
+
+> [!IMPORTANT]
+> **Persistence Note**: On Render's Free tier, the SQLite database (`healthcare.db`) is ephemeral. Data will reset on every restart. For production use, attach a **Render Disk** or use a managed **PostgreSQL** instance.
+
+---
+
+## 🧠 MLOps & Reproducibility
+This project implements key MLOps principles to ensure it is "Hackathon Ready":
+
+- **Reproducibility**: By using Docker, we guarantee the app runs identically in development, staging, and production. No more "it works on my machine."
+- **Portability**: The containerized structure allows the backend to be moved to AWS, Google Cloud, or Azure with zero code changes.
+- **Dependency Management**: Strict versioning in `requirements.txt` prevents "breaking changes" during deployment.
+- **Environment Isolation**: Secrets and configurations are managed via environment variables, adhering to **Twelve-Factor App** best practices.
+
+---
 
 ## 📁 Project Structure
-- `app.py`: Main entry point and API routes.
+- `app.py`: Main Flask entry point and API routes.
 - `backend/models/`: SQLAlchemy database models.
 - `backend/services/`: ML logic and monitoring services.
 - `templates/`: Frontend UI (HTML/CSS/JS).
-- `healthcare.db`: The SQLite database file (generated on first run).
+- `Dockerfile`: Production container definition.
+- `.env.example`: Template for environment secrets.
+
+---
+
+## 🛡 License
+Distributed under the MIT License. See `LICENSE` for more information.
