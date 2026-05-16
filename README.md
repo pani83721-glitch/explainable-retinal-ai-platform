@@ -30,6 +30,37 @@ The app will be available at `http://127.0.0.1:5000`.
 
 ---
 
+## 🧠 AI Risk Scoring & Test Cases
+
+The platform uses an AI Risk Engine (with clinical heuristic fallback) to categorize patient health. Use these inputs to test the different portal experiences:
+
+### 🟢 Case 1: Low Risk (Green)
+*   **Threshold**: Score < 0.35
+*   **Trigger Data**: 
+    *   Inpatient History: `0`
+    *   Stay Duration: `1-3` days
+    *   Age: `[20-50)`
+*   **Experience**: Patient receives high-praise empathetic feedback. Dashboard remains green.
+
+### 🟡 Case 2: Moderate Risk (Yellow)
+*   **Threshold**: Score 0.35 - 0.65
+*   **Trigger Data**: 
+    *   Inpatient History: `2`
+    *   Stay Duration: `4-5` days
+    *   Age: `[50-70)`
+*   **Experience**: Patient receives a cautionary check-up reminder. Admin sees a "Moderate Risk" flag.
+
+### 🔴 Case 3: High Risk (Red)
+*   **Threshold**: Score > 0.65
+*   **Trigger Data**: 
+    *   Inpatient History: `3+`
+    *   Stay Duration: `6+` days
+    *   Insulin: `Up`
+    *   Age: `[70-80+)`
+*   **Experience**: Patient is advised to visit the hospital immediately. A **Clinical Alert** is automatically generated in the Admin Portal.
+
+---
+
 ## 🛠 Database Management & Inspection
 
 To help you verify that the data is being stored correctly (patients, reports, AI alerts), use the built-in inspection script:
